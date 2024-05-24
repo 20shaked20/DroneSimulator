@@ -31,11 +31,9 @@ class DroneSimulator:
                 pygame.draw.rect(self.screen, color, pygame.Rect(x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size))
     
     def draw_start_and_end_points(self):
-        # Draw starting point circle
         start_x, start_y = self.start_position
         pygame.draw.circle(self.screen, (0, 255, 0), (start_x * self.cell_size + self.cell_size // 2, start_y * self.cell_size + self.cell_size // 2), self.cell_size // 2)
         
-        # Draw far point circle
         far_x, far_y = self.far_point
         pygame.draw.circle(self.screen, (255, 0, 0), (far_x * self.cell_size + self.cell_size // 2, far_y * self.cell_size + self.cell_size // 2), self.cell_size // 2)
     
@@ -47,7 +45,7 @@ class DroneSimulator:
             
             self.screen.fill((255, 255, 255))
             self.draw_map()
-            self.draw_start_and_end_points()  # Draw starting and ending points
+            self.draw_start_and_end_points()
             
             if self.drone.battery_level > 50:
                 move = self.drone.plan_next_move()
@@ -55,21 +53,19 @@ class DroneSimulator:
                 self.drone.update_battery()
                 self.drone.time_elapsed += 0.1
             else:
-                path_to_home = self.drone.return_to_point(self.start_position)
-                if path_to_home:
-                    next_step = path_to_home[0]
-                    move = (next_step[0] - self.drone.position[0], next_step[1] - self.drone.position[1])
-                    self.drone.move(move)
+                if not self.drone.returning_home:
+                    self.drone.start_returning_home()
+                move = self.drone.return_home()
+                if move is None:
+                    self.running = False
                 else:
-                    # Reached home or couldn't find a path back
-                    self.running = False  # End simulation
+                    self.drone.move(move)
             
             self.draw_drone()
             self.draw_info()
             pygame.display.flip()
             self.clock.tick(10)
 
-        # Keep the pygame window open
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -86,10 +82,8 @@ class DroneSimulator:
         x, y = self.drone.position
         pygame.draw.circle(self.screen, (0, 0, 255), (x * self.cell_size + self.cell_size // 2, y * self.cell_size + self.cell_size // 2), self.cell_size // 2)
         
-        # Draw the trail
         for (tx, ty) in self.drone.path:
             pygame.draw.circle(self.screen, (255, 0, 0), (tx * self.cell_size + self.cell_size // 2, ty * self.cell_size + self.cell_size // 2), self.cell_size // 4)
-
 
 class Drone:
     def __init__(self, start_position, map_data, far_point):
@@ -101,6 +95,8 @@ class Drone:
         self.path = [start_position]
         self.time_elapsed = 0
         self.current_direction = (1, 0)  # Start moving right
+        self.returning_home = False
+        self.return_path = []
         
     def get_sensor_data(self):
         distances = {
@@ -136,7 +132,6 @@ class Drone:
             print(f"Moved to new position: {self.position}")
         else:
             print(f"Failed to move to new position: {new_position}, trying different directions")
-            # Drone detects an obstacle, try different directions
             possible_directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
             random.shuffle(possible_directions)
             for d in possible_directions:
@@ -164,7 +159,6 @@ class Drone:
         print(f"Current position: {self.position}, Battery: {self.battery_level:.2f}%")
         
         if self.battery_level > 50:
-            # Check if there are unvisited adjacent positions
             unvisited_adjacent = []
             for direction in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 next_position = (x + direction[0], y + direction[1])
@@ -179,67 +173,29 @@ class Drone:
             print(f"Continuing in current direction: {self.current_direction}")
             return self.current_direction
         else:
-            # Use A* pathfinding to the starting point
-            print(f"Battery low, attempting to return to start point: {self.start_position}")
-            path_to_start = self.return_to_point(self.start_position)
-            if path_to_start:
-                next_step = path_to_start[0]
-                move = (next_step[0] - self.position[0], next_step[1] - self.position[1])
-                print(f"Path to start point: {path_to_start}, Next move: {move}")
-                return move
-            else:
-                print("No valid path found, continuing in current direction")
-                return self.current_direction
+            if not self.returning_home:
+                self.start_returning_home()
+            return self.return_home()
     
-    def return_to_point(self, destination):
-        def heuristic(a, b):
-            return abs(b[0] - a[0]) + abs(b[1] - a[1])
+    def start_returning_home(self):
+        self.returning_home = True
+        self.return_path = self.path[::-1]  # Reverse the path to go back home
+        print("Starting to return home, path:", self.return_path)
+    
+    def return_home(self):
+        if not self.return_path:
+            print("Reached home or no valid path")
+            return None
+        
+        next_position = self.return_path.pop(0)
+        move = (next_position[0] - self.position[0], next_position[1] - self.position[1])
+        print(f"Returning home, next move: {move}")
+        return move
 
-        start = self.position
-        goal = destination
-        queue = [(0, start)]
-        came_from = {start: None}
-        cost_so_far = {start: 0}
-
-        while queue:
-            _, current = heapq.heappop(queue)
-
-            if current == goal:
-                break
-
-            for direction in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                next_position = (current[0] + direction[0], current[1] + direction[1])
-                if not self._is_valid_position(next_position):
-                    continue
-                new_cost = cost_so_far[current] + 1
-                if next_position not in cost_so_far or new_cost < cost_so_far[next_position]:
-                    cost_so_far[next_position] = new_cost
-                    priority = new_cost + heuristic(goal, next_position)
-                    heapq.heappush(queue, (priority, next_position))
-                    came_from[next_position] = current
-
-        path = []
-        current = goal
-        while current != start:
-            path.append(current)
-            current = came_from.get(current)
-            if current is None:
-                print("Failed to find a valid path")
-                return []  # Return an empty path if no valid path is found
-
-        path.append(start)
-        path.reverse()
-
-        print(f"Path found: {path}")
-        return path
-
-# Define the main function
 def main():
-    # Create the map and start the simulation
     map_size = (200, 200)
     map_data = np.ones(map_size)
 
-    # Add complex obstacles
     for i in range(30, 170):
         map_data[i, 30] = 0  # Vertical wall
         map_data[i, 170] = 0  # Vertical wall
@@ -248,7 +204,6 @@ def main():
         map_data[30, i] = 0  # Horizontal wall
         map_data[170, i] = 0  # Horizontal wall
 
-    # Additional complex obstacles
     for i in range(60, 140):
         map_data[i, 100] = 0  # Vertical wall in the middle
 
@@ -262,9 +217,8 @@ def main():
         map_data[i, 60] = 0  # Vertical wall
 
     start_position = (100, 100)
-    far_point = (150, 150)  # Define the far point
+    far_point = (150, 150)
 
-    # Initialize the simulator with the far point
     simulator = DroneSimulator(map_data, start_position, far_point)
 
 if __name__ == "__main__":
