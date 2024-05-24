@@ -3,6 +3,7 @@ import numpy as np
 import random
 import heapq
 import math
+from collections import defaultdict
 
 class DroneSimulator:
     def __init__(self, map_data, start_position, far_point):
@@ -60,6 +61,8 @@ class DroneSimulator:
                     self.running = False
                 else:
                     self.drone.move(move)
+                    self.drone.update_battery()
+                    self.drone.time_elapsed += 0.1
             
             self.draw_drone()
             self.draw_info()
@@ -88,6 +91,7 @@ class DroneSimulator:
 class Drone:
     def __init__(self, start_position, map_data, far_point):
         self.position = start_position
+        self.start_position = start_position
         self.map_data = map_data
         self.far_point = far_point
         self.battery_level = 100  # Start with full battery
@@ -97,6 +101,7 @@ class Drone:
         self.current_direction = (1, 0)  # Start moving right
         self.returning_home = False
         self.return_path = []
+        self.adjacency_list = defaultdict(list)
         
     def get_sensor_data(self):
         distances = {
@@ -129,6 +134,7 @@ class Drone:
             self.position = new_position
             self.covered_area.add(new_position)
             self.path.append(new_position)
+            self._update_adjacency_list((x, y), new_position)
             print(f"Moved to new position: {self.position}")
         else:
             print(f"Failed to move to new position: {new_position}, trying different directions")
@@ -140,9 +146,14 @@ class Drone:
                     self.position = new_position
                     self.covered_area.add(new_position)
                     self.path.append(new_position)
+                    self._update_adjacency_list((x, y), new_position)
                     self.current_direction = d
                     print(f"Moved to new position: {self.position} after detecting obstacle")
                     break
+    
+    def _update_adjacency_list(self, old_position, new_position):
+        self.adjacency_list[old_position].append(new_position)
+        self.adjacency_list[new_position].append(old_position)
     
     def _is_valid_position(self, position):
         x, y = position
@@ -179,7 +190,7 @@ class Drone:
     
     def start_returning_home(self):
         self.returning_home = True
-        self.return_path = self.path[::-1]  # Reverse the path to go back home
+        self.return_path = self.dijkstra(self.position, self.start_position)
         print("Starting to return home, path:", self.return_path)
     
     def return_home(self):
@@ -191,6 +202,35 @@ class Drone:
         move = (next_position[0] - self.position[0], next_position[1] - self.position[1])
         print(f"Returning home, next move: {move}")
         return move
+    
+    def dijkstra(self, start, goal):
+        queue = [(0, start)]
+        distances = {start: 0}
+        previous_nodes = {start: None}
+
+        while queue:
+            current_distance, current_node = heapq.heappop(queue)
+
+            if current_node == goal:
+                break
+
+            for neighbor in self.adjacency_list[current_node]:
+                distance = current_distance + 1
+                if neighbor not in distances or distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    priority = distance
+                    heapq.heappush(queue, (priority, neighbor))
+                    previous_nodes[neighbor] = current_node
+
+        path = []
+        current = goal
+        while current is not None:
+            path.append(current)
+            current = previous_nodes[current]
+
+        path.reverse()
+        print(f"Path found: {path}")
+        return path if path[0] == start else []
 
 def main():
     map_size = (200, 200)
