@@ -2,6 +2,7 @@ import pygame
 import time
 from Drone import Drone
 
+
 class DroneSimulator:
     def __init__(self, map_data, start_position, far_point):
         pygame.init()
@@ -22,6 +23,10 @@ class DroneSimulator:
         self.running = True
         self.clock = pygame.time.Clock()
         self.fullscreen = False
+
+        # Load the drone image
+        self.drone_image = pygame.image.load("drone_2646511.png").convert_alpha()
+        self.drone_image = pygame.transform.scale(self.drone_image, (self.cell_size * 4, self.cell_size * 4))
         
         self.update_simulation()
     
@@ -153,7 +158,12 @@ class DroneSimulator:
     def draw_drone(self):
         """Draw the drone and its path."""
         x, y = self.drone.position
-        pygame.draw.circle(self.screen, (0, 0, 255), (x * self.cell_size + self.cell_size // 2 + self.sidebar_width, y * self.cell_size + self.cell_size // 2), self.cell_size)
+
+        # Calculate the position to center the image on the cell
+        drone_rect = self.drone_image.get_rect(center=(x * self.cell_size + self.sidebar_width + self.cell_size // 2, y * self.cell_size + self.cell_size // 2))
+        self.screen.blit(self.drone_image, drone_rect)
+
+        # pygame.draw.circle(self.screen, (0, 0, 255), (x * self.cell_size + self.cell_size // 2 + self.sidebar_width, y * self.cell_size + self.cell_size // 2), self.cell_size)
         
         for (tx, ty) in self.drone.path:
             pygame.draw.circle(self.screen, (255, 0, 0), (tx * self.cell_size + self.cell_size // 2 + self.sidebar_width, ty * self.cell_size + self.cell_size // 2), self.cell_size // 2)
