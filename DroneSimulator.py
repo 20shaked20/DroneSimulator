@@ -2,7 +2,6 @@ import pygame
 import time
 from Drone import Drone
 
-
 class DroneSimulator:
     def __init__(self, map_data, start_position, far_point):
         pygame.init()
@@ -10,9 +9,14 @@ class DroneSimulator:
         self.start_position = start_position
         self.far_point = far_point
         self.drone = Drone(start_position, map_data, far_point)
-        self.cell_size = 8  # Size of each cell in the grid for better visibility
         self.sidebar_width = 500  # Width of the sidebar for data display
-        self.screen_size = (map_data.shape[1] * self.cell_size + self.sidebar_width, map_data.shape[0] * self.cell_size)
+        self.screen_info = pygame.display.Info()
+        self.screen_width = self.screen_info.current_w
+        self.screen_height = self.screen_info.current_h
+
+        # Calculate initial cell size
+        self.cell_size = min(self.screen_height // self.map_data.shape[0], self.screen_width // (self.map_data.shape[1] + self.sidebar_width // 10))
+        self.screen_size = (self.screen_width, self.screen_height)
         
         self.screen = pygame.display.set_mode(self.screen_size, pygame.RESIZABLE)
         pygame.display.set_caption("Drone Simulator")
@@ -55,7 +59,10 @@ class DroneSimulator:
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.VIDEORESIZE:
-                    self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+                    self.screen_width, self.screen_height = event.size
+                    self.cell_size = min(self.screen_height // self.map_data.shape[0], self.screen_width // (self.map_data.shape[1] + self.sidebar_width // 10))
+                    self.screen_size = (self.screen_width, self.screen_height)
+                    self.screen = pygame.display.set_mode(self.screen_size, pygame.RESIZABLE)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_f:
                         self.fullscreen = not self.fullscreen
@@ -145,12 +152,12 @@ class DroneSimulator:
         self.screen.blit(state_text, state_text_rect)
 
         # Sensors Info
-        sensors_header_rect = sensors_header.get_rect(center=(self.sidebar_width // 2, 740))
-        tof_text_rect = tof_text.get_rect(center=(self.sidebar_width // 2, 800))
-        baro_text_rect = baro_text.get_rect(center=(self.sidebar_width // 2, 840))
-        imu_gyro_text_rect = imu_gyro_text.get_rect(center=(self.sidebar_width // 2, 880))
-        imu_acc_text_rect = imu_acc_text.get_rect(center=(self.sidebar_width // 2, 920))
-        optical_flow_text_rect = optical_flow_text.get_rect(center=(self.sidebar_width // 2, 960))
+        sensors_header_rect = sensors_header.get_rect(center=(self.sidebar_width // 2, 260))
+        tof_text_rect = tof_text.get_rect(center=(self.sidebar_width // 2, 300))
+        baro_text_rect = baro_text.get_rect(center=(self.sidebar_width // 2, 340))
+        imu_gyro_text_rect = imu_gyro_text.get_rect(center=(self.sidebar_width // 2, 380))
+        imu_acc_text_rect = imu_acc_text.get_rect(center=(self.sidebar_width // 2, 420))
+        optical_flow_text_rect = optical_flow_text.get_rect(center=(self.sidebar_width // 2, 460))
 
         self.screen.blit(sensors_header, sensors_header_rect)
         self.screen.blit(tof_text, tof_text_rect)
