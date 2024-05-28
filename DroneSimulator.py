@@ -11,7 +11,7 @@ class DroneSimulator:
         self.far_point = far_point
         self.drone = Drone(start_position, map_data, far_point)
         self.cell_size = 8  # Size of each cell in the grid for better visibility
-        self.sidebar_width = 300  # Width of the sidebar for data display
+        self.sidebar_width = 500  # Width of the sidebar for data display
         self.screen_size = (map_data.shape[1] * self.cell_size + self.sidebar_width, map_data.shape[0] * self.cell_size)
         
         self.screen = pygame.display.set_mode(self.screen_size, pygame.RESIZABLE)
@@ -113,11 +113,13 @@ class DroneSimulator:
     
     def draw_info(self):
         """Draw the sidebar information."""
-        pygame.draw.rect(self.screen, (200, 200, 200), pygame.Rect(0, 0, self.sidebar_width, self.screen.get_height()))
+        pygame.draw.rect(self.screen, (204, 255, 255), pygame.Rect(0, 0, self.sidebar_width, self.screen.get_height()))
         
         battery_text = self.font.render(f"Battery: {self.drone.battery_level:.2f}%", True, (0, 0, 0))
         time_text = self.font.render(f"Flight Time: {self.drone.time_elapsed:.2f} sec", True, (0, 0, 0))
-        
+
+        sensors_header = self.font.render(f"Sensors Information", True, (0, 0, 204))
+
         sensors = self.drone.get_sensor_data()
         tof_text = self.font.render(
             f"ToF Ranger: "
@@ -143,12 +145,14 @@ class DroneSimulator:
         self.screen.blit(state_text, state_text_rect)
 
         # Sensors Info
-        tof_text_rect = tof_text.get_rect(topleft=(10, 260))
-        baro_text_rect = baro_text.get_rect(topleft=(10, 300))
-        imu_gyro_text_rect = imu_gyro_text.get_rect(topleft=(10, 340))
-        imu_acc_text_rect = imu_acc_text.get_rect(topleft=(10, 380))
-        optical_flow_text_rect = optical_flow_text.get_rect(topleft=(10, 420))
+        sensors_header_rect = sensors_header.get_rect(center=(self.sidebar_width // 2, 740))
+        tof_text_rect = tof_text.get_rect(center=(self.sidebar_width // 2, 800))
+        baro_text_rect = baro_text.get_rect(center=(self.sidebar_width // 2, 840))
+        imu_gyro_text_rect = imu_gyro_text.get_rect(center=(self.sidebar_width // 2, 880))
+        imu_acc_text_rect = imu_acc_text.get_rect(center=(self.sidebar_width // 2, 920))
+        optical_flow_text_rect = optical_flow_text.get_rect(center=(self.sidebar_width // 2, 960))
 
+        self.screen.blit(sensors_header, sensors_header_rect)
         self.screen.blit(tof_text, tof_text_rect)
         self.screen.blit(baro_text, baro_text_rect)
         self.screen.blit(imu_gyro_text, imu_gyro_text_rect)
@@ -159,15 +163,15 @@ class DroneSimulator:
         """Draw the drone and its path."""
         x, y = self.drone.position
 
+        # Draw the path first
+        for (tx, ty) in self.drone.path:
+            pygame.draw.circle(self.screen, (255, 0, 0), (tx * self.cell_size + self.cell_size // 2 + self.sidebar_width, ty * self.cell_size + self.cell_size // 2),
+                               self.cell_size // 2)
+
         # Calculate the position to center the image on the cell
         drone_rect = self.drone_image.get_rect(center=(x * self.cell_size + self.sidebar_width + self.cell_size // 2, y * self.cell_size + self.cell_size // 2))
         self.screen.blit(self.drone_image, drone_rect)
 
-        # pygame.draw.circle(self.screen, (0, 0, 255), (x * self.cell_size + self.cell_size // 2 + self.sidebar_width, y * self.cell_size + self.cell_size // 2), self.cell_size)
-        
-        for (tx, ty) in self.drone.path:
-            pygame.draw.circle(self.screen, (255, 0, 0), (tx * self.cell_size + self.cell_size // 2 + self.sidebar_width, ty * self.cell_size + self.cell_size // 2), self.cell_size // 2)
-        
         if self.drone.flight_state == "Taking off":
             takeoff_text = self.font.render("Taking Off", True, (0, 255, 0))
             self.screen.blit(takeoff_text, (x * self.cell_size + self.cell_size // 2 + self.sidebar_width - 20, y * self.cell_size + self.cell_size // 2 - 20))
