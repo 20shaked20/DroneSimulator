@@ -71,6 +71,56 @@ python main.py
 
 </br></br>
 
+## Visualization
+### Start Flying
+
+<p align="center">
+<img src="https://github.com/20shaked20/DroneSimulator/assets/93203695/6e23da71-7691-4229-93b4-9def28691efb">
+</p>
+
+- Drone is "Taking Off".
+- Battery is 100%.
+- Flight Time: 0 seconds.
+- State: "Taking Off".
+</br>
+
+### Flying
+
+<p align="center">
+<img src="https://github.com/20shaked20/DroneSimulator/assets/93203695/1b1fdca9-4e8d-43f6-94b9-6d6b1ba76694">
+</p>
+
+- Drone is "Flying".
+- Battery is 98.25% (drone has started flying --> battery went down)
+- Flight Time: 8.40 seconds.
+- State: "Flying".
+</br>
+
+### Returning Home
+
+<p align="center">
+<img src="https://github.com/20shaked20/DroneSimulator/assets/93203695/b8ef3f37-5206-4e32-8ea3-d04cab155c07">
+</p>
+
+- Drone is "Flying".
+- Battery is 49.60% (when battery level is 50% --> drone flying back to home)
+- Flight Time: 241.90 seconds.
+- State: "Returning Home".
+</br>
+
+### Landing
+
+<p align="center">
+<img src="https://github.com/20shaked20/DroneSimulator/assets/93203695/2944beb1-f2f4-4b90-a216-3c5e2a2d4c1e">
+</p>
+
+- Drone is "Landed Safely".
+- Battery is 39.81% (The drone took the fastest route back home --> battery not empty :) )
+- Flight Time: 288.90 seconds.
+- State: "Landed".
+</br>
+
+
 ## Future Improvements :crystal_ball:
 - **Enhance Control Algorithm:** Implement more advanced algorithms for navigation and obstacle avoidance.
 - **3D Environment:** Extend the simulator to support 3D modeling and navigation.
