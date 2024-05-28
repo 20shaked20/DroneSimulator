@@ -19,7 +19,6 @@ The Drone Simulator is a Python-based simulation of an autonomous drone navigati
 git clone https://github.com/your-repo/drone-simulator.git
 
 ```
-</br> 
 
 ```
 cd drone-simulator
@@ -30,3 +29,18 @@ cd drone-simulator
 ```
 pip install pygame numpy
 ```
+</br></br>
+
+## Usage :joystick:
+- Run the Simulator:
+
+```
+python drone_simulator.py
+```
+
+- Simulation Controls:
+  - The simulation starts automatically, with the drone beginning its navigation from the start position.
+  - The drone will autonomously navigate the environment, avoiding obstacles and trying to cover as much terrain as possible.
+  - When the battery level reaches 50%, the drone will start returning to the start position.
+
+</br></br>
