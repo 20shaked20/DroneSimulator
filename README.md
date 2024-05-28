@@ -44,3 +44,11 @@ python drone_simulator.py
   - When the battery level reaches 50%, the drone will start returning to the start position.
 
 </br></br>
+
+## Code Structure :page_with_curl:
+- ```drone_simulator.py:``` The main script that initializes and runs the simulation.
+- ```DroneSimulator Class:``` Manages the Pygame window, updates the simulation, and handles user inputs.
+- ```Drone Class:``` Contains the drone's logic, including sensor data processing, movement, battery management, and pathfinding.
+
+</br></br>
+
