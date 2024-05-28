@@ -27,12 +27,12 @@ The Drone Simulator is a Python-based simulation of an autonomous drone navigati
 1. Clone the Repository: </br>
 
 ```
-git clone https://github.com/your-repo/drone-simulator.git
+git clone https://github.com/20shaked20/DroneSimulator.git
 
 ```
 
 ```
-cd drone-simulator
+cd DroneSimulator
 ```
 
 3. Install Dependencies: </br>
