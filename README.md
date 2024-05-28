@@ -65,3 +65,10 @@ python drone_simulator.py
 - When the battery level reaches 50%, the drone uses Dijkstra's algorithm to find the shortest path back to the starting point (```return_home``` method).
 
 </br></br>
+
+## Future Improvements :crystal_ball:
+- **Enhance Control Algorithm:** Implement more advanced algorithms for navigation and obstacle avoidance.
+- **3D Environment:** Extend the simulator to support 3D modeling and navigation.
+- **Reinforcement Learning:** Explore reinforcement learning techniques to improve the drone's navigation strategy.
+- **Real-world Integration:** Interface with real drones and sensors for testing in physical environments.
+</br></br>
