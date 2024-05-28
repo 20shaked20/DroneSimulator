@@ -8,6 +8,12 @@
 The Drone Simulator is a Python-based simulation of an autonomous drone navigating a 2D environment. This simulator models a drone equipped with multiple sensors to detect its surroundings and autonomously plan its path to explore as much terrain as possible. The drone will return to its starting point when the battery level drops to 50%. The simulator uses Pygame for visual representation and basic control algorithms for navigation.
 </br></br>
 
+## Files :open_file_folder:
+- ```Drone.py:``` Contains the ```Drone``` class, which handles the drone's behavior, movement, sensor data, and path planning.
+- ```DroneSimulator.py:``` Contains the ```DroneSimulator``` class, which handles the visualization and simulation using Pygame.
+- ```main.py:``` The entry point to run the simulation.
+</br></br>
+
 ## Features :desktop_computer:
 - **2D Map Representation:** The environment is represented as a 2D grid where each cell can be either an obstacle or a free space.
 - **Drone Sensors:** Simulated sensors include distance meters in six directions, a speed sensor, an orientation sensor (IMU), a barometer, and a battery sensor.
@@ -30,6 +36,8 @@ cd drone-simulator
 ```
 
 3. Install Dependencies: </br>
+- Ensure you have Python 3 installed.
+- Install the required packages using pip:
 
 ```
 pip install pygame numpy
@@ -51,9 +59,43 @@ python main.py
 </br></br>
 
 ## Code Structure :page_with_curl:
-- ```main.py:``` The main script that initializes and runs the simulation.
-- ```DroneSimulator Class:``` Manages the Pygame window, updates the simulation, and handles user inputs.
-- ```Drone Class:``` Contains the drone's logic, including sensor data processing, movement, battery management, and pathfinding.
+### Drone Class (Drone.py)
+- Initialization
+  - The drone starts at a given position with a full battery.
+  - The map and the farthest point to explore are provided.
+
+- Movement
+  - The drone moves in the specified direction if the position is valid.
+  - It avoids obstacles and updates its path and battery accordingly.
+
+- Sensor Data
+  - The drone simulates various sensors including ToF (Time of Flight) range finders, IMU (Inertial Measurement Unit) for yaw, pitch, roll, and velocity.
+
+- Return Home
+  - When the battery level drops below 50%, the drone uses Dijkstra's algorithm to find the shortest path back to the starting position.
+ 
+### Drone Simulator Class (DroneSimulator.py)
+- Initialization
+  - Sets up the Pygame environment, map visualization, and drone representation.
+
+- Drawing Functions
+  - ```draw_map()```: Draws the grid map.
+  - ```draw_start_and_end_points()```: Highlights the starting and farthest points.
+  - ```draw_info()```: Displays the drone's battery level, flight time, state, and sensor data.
+  - ```draw_drone()```: Draws the drone and its path.
+
+- Simulation Loop
+  - Handles events like window resizing, fullscreen toggle, and exiting.
+  - Updates the drone's state, moves the drone, and handles takeoff and landing sequences.
+ 
+### Main Function (main.py)
+- Map Configuration
+  - Defines the size of the map and places obstacles on the grid.
+  - Sets the start position and the farthest point to explore.
+
+- Running the Simulator
+  - Instantiates the ```DroneSimulator``` with the map, start position, and far point.
+  - Calls the ```update_simulation()``` method to start the simulation.
 
 </br></br>
 
@@ -71,7 +113,7 @@ python main.py
 
 </br></br>
 
-## Visualization
+## Visualization :movie_camera:
 ### Start Flying
 
 <p align="center">
