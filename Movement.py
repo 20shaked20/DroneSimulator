@@ -13,7 +13,7 @@ class DroneSimulator:
         self.far_point = far_point
         self.drone = Drone(start_position, map_data, far_point)
         self.cell_size = 5  # Size of each cell in the grid
-        self.screen_size = (map_data.shape[1] * self.cell_size, map_data.shape[0] * self.cell_size + 50)
+        self.screen_size = (map_data.shape[1] * self.cell_size, map_data.shape[0] * self.cell_size + 100)
         
         self.screen = pygame.display.set_mode(self.screen_size)
         pygame.display.set_caption("Drone Simulator")
@@ -78,8 +78,17 @@ class DroneSimulator:
     def draw_info(self):
         battery_text = self.font.render(f"Battery: {self.drone.battery_level:.2f}%", True, (0, 0, 0))
         time_text = self.font.render(f"Flight Time: {self.drone.time_elapsed:.2f} sec", True, (0, 0, 0))
+        sensor_text = self.font.render(f"Sensors: {self.drone.get_sensor_data()}", True, (0, 0, 0))
+        pitch_text = self.font.render(f"Pitch: {self.drone.pitch:.2f}°", True, (0, 0, 0))
+        roll_text = self.font.render(f"Roll: {self.drone.roll:.2f}°", True, (0, 0, 0))
+        yaw_text = self.font.render(f"Yaw: {self.drone.yaw:.2f}°", True, (0, 0, 0))
+        
         self.screen.blit(battery_text, (10, self.map_data.shape[0] * self.cell_size + 10))
         self.screen.blit(time_text, (200, self.map_data.shape[0] * self.cell_size + 10))
+        self.screen.blit(sensor_text, (400, self.map_data.shape[0] * self.cell_size + 10))
+        self.screen.blit(pitch_text, (10, self.map_data.shape[0] * self.cell_size + 40))
+        self.screen.blit(roll_text, (200, self.map_data.shape[0] * self.cell_size + 40))
+        self.screen.blit(yaw_text, (400, self.map_data.shape[0] * self.cell_size + 40))
     
     def draw_drone(self):
         x, y = self.drone.position
@@ -102,18 +111,47 @@ class Drone:
         self.returning_home = False
         self.return_path = []
         self.adjacency_list = defaultdict(list)
+        self.yaw = 0
+        self.pitch = 0
+        self.roll = 0
+        self.velocity = (0, 0)  # (vx, vy)
+        self.altitude = 0
         
     def get_sensor_data(self):
         distances = {
-            'up': self._distance_to_obstacle(self.position, (0, -1)),
-            'down': self._distance_to_obstacle(self.position, (0, 1)),
-            'left': self._distance_to_obstacle(self.position, (-1, 0)),
-            'right': self._distance_to_obstacle(self.position, (1, 0)),
-            'forward': self._distance_to_obstacle(self.position, (1, 1)),
-            'backward': self._distance_to_obstacle(self.position, (-1, -1))
+            'up': self._simulate_sensor(self._distance_to_obstacle(self.position, (0, -1))),
+            'down': self._simulate_sensor(self._distance_to_obstacle(self.position, (0, 1))),
+            'left': self._simulate_sensor(self._distance_to_obstacle(self.position, (-1, 0))),
+            'right': self._simulate_sensor(self._distance_to_obstacle(self.position, (1, 0))),
+            'forward': self._simulate_sensor(self._distance_to_obstacle(self.position, (1, 1))),
+            'backward': self._simulate_sensor(self._distance_to_obstacle(self.position, (-1, -1)))
         }
-        return distances
-    
+        sensor_data = {
+            'd0': distances['up'],
+            'd1': distances['down'],
+            'd2': distances['left'],
+            'd3': distances['right'],
+            'd4': distances['forward'],
+            'yaw': self.yaw,
+            'Vx': self.velocity[0],
+            'Vy': self.velocity[1],
+            'Z': self.altitude,
+            'baro': self.altitude,
+            'bat': self.battery_level,
+            'pitch': self.pitch,
+            'roll': self.roll,
+            'accX': 0,  # Placeholder for acceleration data
+            'accY': 0,  # Placeholder for acceleration data
+            'accZ': 0   # Placeholder for acceleration data
+        }
+        return sensor_data
+
+    def _simulate_sensor(self, distance):
+        if random.random() < 0.03:
+            return random.uniform(0, 3)  # Simulate wrong data
+        error = random.uniform(-0.02, 0.02) * distance
+        return max(0, min(3, distance + error))
+
     def _distance_to_obstacle(self, position, direction):
         x, y = position
         dx, dy = direction
@@ -124,7 +162,7 @@ class Drone:
             distance += 1
             if self.map_data[y, x] == 0:
                 break
-        return distance * 2.5  # Each pixel is 2.5 cm
+        return distance * 0.025  # Each pixel is 2.5 cm, convert to meters
     
     def move(self, direction):
         x, y = self.position
@@ -231,6 +269,16 @@ class Drone:
         path.reverse()
         print(f"Path found: {path}")
         return path if path[0] == start else []
+
+    def takeoff(self):
+        if self.altitude == 0:
+            self.altitude = 1  # Takeoff to a height of 1 meter
+            print("Taking off to a height of 1 meter")
+
+    def land(self):
+        if self.altitude > 0:
+            self.altitude = 0  # Land the drone
+            print("Landing the drone")
 
 def main():
     map_size = (200, 200)
