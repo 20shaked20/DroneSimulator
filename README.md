@@ -61,7 +61,7 @@ python main.py
 
 ### Part One: Platform Search and Interface Definition :mag:
 - The simulator uses a 2D grid to model the environment. The grid cells represent 2.5 cm x 2.5 cm areas.
-- The drone has six distance sensors, an IMU for orientation, a barometer for altitude, and a battery sensor. Sensor data is updated at 10 Hz.
+- The drone has multiple sensors, an IMU for orientation, a barometer for atmospheric pressure, altitude, and a battery sensor. Sensor data is updated at 10 Hz (ticks).
 - The interface for calculating distances is implemented in the ```get_sensor_data``` method, which uses the ```_distance_to_obstacle``` helper function to calculate distances to the nearest obstacles.
 
 ### Part Two: Control System :wrench:
