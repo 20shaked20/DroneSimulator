@@ -10,3 +10,23 @@ The Drone Simulator is a Python-based simulation of an autonomous drone navigati
 - **Battery Management:** The drone monitors its battery level and returns to the starting point when the battery level reaches 50%.
 - **Pathfinding:** Uses Dijkstra's algorithm for efficient pathfinding during the return to the home position.
 - **Visualization:** Uses Pygame to visualize the drone's movement, the explored area, obstacles, and other key information.
+</br></br>
+
+## Installation :arrow_down:
+1. Clone the Repository: </br>
+
+```
+git clone https://github.com/your-repo/drone-simulator.git
+
+```
+</br> 
+
+```
+cd drone-simulator
+```
+
+3. Install Dependencies: </br>
+
+```
+pip install pygame numpy
+```
