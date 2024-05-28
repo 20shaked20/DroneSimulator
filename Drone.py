@@ -59,7 +59,7 @@ class Drone:
         x, y = position
         dx, dy = direction
         distance = 0
-        while 0 <= x < self.map_data.shape[1] and 0 <= y < self.map_data.shape[0]:
+        while 0 <= x + dx < self.map_data.shape[1] and 0 <= y + dy < self.map_data.shape[0]:
             x += dx
             y += dy
             distance += 1
@@ -113,7 +113,7 @@ class Drone:
     
     def update_battery(self, time_step=1):
         """Update the battery level based on time step."""
-        self.battery_level -= (100 / 480) * time_step
+        self.battery_level -= (10 / 480) * time_step
         print(f"Battery updated: {self.battery_level:.2f}%")
     
     def plan_next_move(self):
@@ -121,25 +121,20 @@ class Drone:
         x, y = self.position
         print(f"Current position: {self.position}, Battery: {self.battery_level:.2f}%")
         
-        if self.battery_level > 50:
-            unvisited_adjacent = []
-            for direction in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                next_position = (x + direction[0], y + direction[1])
-                if self._is_valid_position(next_position) and next_position not in self.covered_area:
-                    unvisited_adjacent.append(direction)
-            
-            if unvisited_adjacent:
-                next_move = random.choice(unvisited_adjacent)
-                print(f"Unvisited adjacent: {unvisited_adjacent}, Next move: {next_move}")
-                return next_move
-            
-            print(f"Continuing in current direction: {self.current_direction}")
-            return self.current_direction
-        else:
-            if not self.returning_home:
-                self.start_returning_home()
-            return self.return_home()
-    
+        unvisited_adjacent = []
+        for direction in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            next_position = (x + direction[0], y + direction[1])
+            if self._is_valid_position(next_position) and next_position not in self.covered_area:
+                unvisited_adjacent.append(direction)
+        
+        if unvisited_adjacent:
+            next_move = random.choice(unvisited_adjacent)
+            print(f"Unvisited adjacent: {unvisited_adjacent}, Next move: {next_move}")
+            return next_move
+        
+        print(f"Continuing in current direction: {self.current_direction}")
+        return self.current_direction
+
     def start_returning_home(self):
         """Start returning home using Dijkstra's algorithm."""
         self.returning_home = True

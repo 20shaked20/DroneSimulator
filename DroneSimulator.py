@@ -26,14 +26,14 @@ class DroneSimulator:
         self.update_simulation()
     
     def draw_map(self):
-        """Draw the map grid."""
+        """Draw the map."""
         for y in range(self.map_data.shape[0]):
             for x in range(self.map_data.shape[1]):
                 color = (255, 255, 255) if self.map_data[y, x] == 1 else (0, 0, 0)
                 pygame.draw.rect(self.screen, color, pygame.Rect(x * self.cell_size + self.sidebar_width, y * self.cell_size, self.cell_size, self.cell_size))
     
     def draw_start_and_end_points(self):
-        """Draw the starting and ending points on the map."""
+        """Draw the start and end points."""
         start_x, start_y = self.start_position
         pygame.draw.circle(self.screen, (0, 255, 0), (start_x * self.cell_size + self.cell_size // 2 + self.sidebar_width, start_y * self.cell_size + self.cell_size // 2), self.cell_size)
         
@@ -41,7 +41,7 @@ class DroneSimulator:
         pygame.draw.circle(self.screen, (255, 0, 0), (far_x * self.cell_size + self.cell_size // 2 + self.sidebar_width, far_y * self.cell_size + self.cell_size // 2), self.cell_size)
     
     def update_simulation(self):
-        """Main loop to update the simulation."""
+        """Update the simulation."""
         takeoff_displayed = False
         landing_displayed = False
 
@@ -107,7 +107,7 @@ class DroneSimulator:
             self.clock.tick(10)
     
     def draw_info(self):
-        """Draw the drone's sensor and state information on the sidebar."""
+        """Draw the sidebar information."""
         pygame.draw.rect(self.screen, (200, 200, 200), pygame.Rect(0, 0, self.sidebar_width, self.screen.get_height()))
         
         battery_text = self.font.render(f"Battery: {self.drone.battery_level:.2f}%", True, (0, 0, 0))
@@ -115,7 +115,12 @@ class DroneSimulator:
         
         sensors = self.drone.get_sensor_data()
         tof_text = self.font.render(
-            f"ToF Ranger:\nd0={sensors['d0']:.2f}\nd1={sensors['d1']:.2f}\nd2={sensors['d2']:.2f}\nd3={sensors['d3']:.2f}\nd4={sensors['d4']:.2f}", True, (0, 0, 0))
+            f"ToF Ranger: "
+            f"d0={sensors['d0']:.2f} "
+            f"d1={sensors['d1']:.2f} "
+            f"d2={sensors['d2']:.2f} "
+            f"d3={sensors['d3']:.2f} "
+            f"d4={sensors['d4']:.2f}", True, (0, 0, 0))
         baro_text = self.font.render(f"Barometer: baro={sensors['baro']:.2f}", True, (0, 0, 0))
         imu_gyro_text = self.font.render(f"IMU (gyro): yaw={sensors['yaw']:.2f}", True, (0, 0, 0))
         imu_acc_text = self.font.render(f"IMU (acc): pitch={sensors['pitch']:.2f} roll={sensors['roll']:.2f} accX={sensors['accX']:.2f} accY={sensors['accY']:.2f} accZ={sensors['accZ']:.2f}", True, (0, 0, 0))
