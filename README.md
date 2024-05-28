@@ -52,3 +52,16 @@ python drone_simulator.py
 
 </br></br>
 
+## Implementation Details :hammer:
+
+### Part One: Platform Search and Interface Definition :mag:
+- The simulator uses a 2D grid to model the environment. The grid cells represent 2.5 cm x 2.5 cm areas.
+- The drone has six distance sensors, an IMU for orientation, a barometer for altitude, and a battery sensor. Sensor data is updated at 10 Hz.
+- The interface for calculating distances is implemented in the ```get_sensor_data``` method, which uses the ```_distance_to_obstacle``` helper function to calculate distances to the nearest obstacles.
+
+### Part Two: Control System :wrench:
+- The drone navigates autonomously using a simple control algorithm. It tries to explore unvisited adjacent cells and avoids obstacles.
+- The ```plan_next_move``` method determines the drone's next move based on sensor data and battery level.
+- When the battery level reaches 50%, the drone uses Dijkstra's algorithm to find the shortest path back to the starting point (```return_home``` method).
+
+</br></br>
