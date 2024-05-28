@@ -40,7 +40,7 @@ pip install pygame numpy
 - Run the Simulator:
 
 ```
-python drone_simulator.py
+python main.py
 ```
 
 - Simulation Controls:
@@ -51,7 +51,7 @@ python drone_simulator.py
 </br></br>
 
 ## Code Structure :page_with_curl:
-- ```drone_simulator.py:``` The main script that initializes and runs the simulation.
+- ```main.py:``` The main script that initializes and runs the simulation.
 - ```DroneSimulator Class:``` Manages the Pygame window, updates the simulation, and handles user inputs.
 - ```Drone Class:``` Contains the drone's logic, including sensor data processing, movement, battery management, and pathfinding.
 
